@@ -1,0 +1,11 @@
+opencv-python>=4.5.0
+numpy>=1.21.0
+tqdm>=4.62.0
+pysrt>=1.1.0
+pytesseract>=0.3.7
+Pillow>=8.0.0
+scikit-image>=0.18.0
+python-Levenshtein>=0.12.0
+easyocr>=1.6.0
+scenedetect>=0.6.0
+Levenshtein~=0.27.1
