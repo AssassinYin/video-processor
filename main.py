@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 """
-Video to frames extraction tool - now using modular components.
-This file provides backward compatibility while using the new modular structure.
+Main entry point for the video processor application.
 """
-
-# Import the new modular components
+import argparse
+import sys
 from video_processor import VideoProcessor, process_multiple_videos
 from config import *
-import argparse
-import os
-import sys
 
 
-def main():
-    """Main function with original argument structure for backward compatibility."""
+def parse_arguments():
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='Extract and analyze frames from videos')
 
     # Input/Output arguments
@@ -53,28 +49,41 @@ def main():
     parser.add_argument('--batch-size', type=int, default=DEFAULT_BATCH_SIZE,
                        help=f'Batch size for OCR processing (default: {DEFAULT_BATCH_SIZE})')
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def get_video_files(input_path):
+    """Get list of video files from input path."""
+    video_extensions = {'.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm'}
+
+    if os.path.isfile(input_path):
+        if os.path.splitext(input_path.lower())[1] in video_extensions:
+            return [input_path]
+        else:
+            raise ValueError(f"File {input_path} is not a supported video format")
+
+    elif os.path.isdir(input_path):
+        video_files = []
+        for filename in os.listdir(input_path):
+            if os.path.splitext(filename.lower())[1] in video_extensions:
+                video_files.append(os.path.join(input_path, filename))
+
+        if not video_files:
+            raise ValueError(f"No video files found in directory {input_path}")
+
+        return sorted(video_files)
+
+    else:
+        raise FileNotFoundError(f"Input path {input_path} does not exist")
+
+
+def main():
+    """Main function."""
+    args = parse_arguments()
 
     try:
         # Get video files to process
-        video_extensions = {'.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm'}
-
-        if os.path.isfile(args.input):
-            if os.path.splitext(args.input.lower())[1] in video_extensions:
-                video_files = [args.input]
-            else:
-                raise ValueError(f"File {args.input} is not a supported video format")
-        elif os.path.isdir(args.input):
-            video_files = []
-            for filename in os.listdir(args.input):
-                if os.path.splitext(filename.lower())[1] in video_extensions:
-                    video_files.append(os.path.join(args.input, filename))
-
-            if not video_files:
-                raise ValueError(f"No video files found in directory {args.input}")
-            video_files = sorted(video_files)
-        else:
-            raise FileNotFoundError(f"Input path {args.input} does not exist")
+        video_files = get_video_files(args.input)
 
         print(f"Found {len(video_files)} video file(s) to process")
 
