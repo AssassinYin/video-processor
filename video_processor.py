@@ -131,11 +131,12 @@ class VideoProcessor:
         return results
 
 
-def process_multiple_videos(video_paths, output_base_dir, **kwargs):
+def process_multiple_videos(processor, video_paths, output_base_dir, **kwargs):
     """
     Process multiple videos with the same settings.
 
     Args:
+        processor (VideoProcessor): An instance of the VideoProcessor
         video_paths (list): List of video file paths
         output_base_dir (str): Base directory for output
         **kwargs: Additional arguments passed to process_video
@@ -143,7 +144,6 @@ def process_multiple_videos(video_paths, output_base_dir, **kwargs):
     Returns:
         list: List of processing results for each video
     """
-    processor = VideoProcessor()
     results = []
 
     for video_path in video_paths:

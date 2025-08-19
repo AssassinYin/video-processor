@@ -1,10 +1,22 @@
 """Configuration module for video processor."""
 import os
 import logging
+import shutil
 import pytesseract
 
-# Explicitly set the Tesseract executable path for Windows
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Set Tesseract executable path for Windows
+if os.name == 'nt':
+    # Check if Tesseract is in the system's PATH
+    tesseract_path = shutil.which('tesseract')
+    if tesseract_path:
+        pytesseract.pytesseract.tesseract_cmd = tesseract_path
+    else:
+        # Fallback to default installation path
+        default_path = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+        if os.path.exists(default_path):
+            pytesseract.pytesseract.tesseract_cmd = default_path
+        else:
+            logging.warning("Tesseract executable not found. Please install Tesseract and ensure it's in your PATH.")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')

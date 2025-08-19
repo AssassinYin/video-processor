@@ -95,52 +95,29 @@ def main():
         )
 
         # Process videos
-        if len(video_files) == 1:
-            # Single video
-            video_path = video_files[0]
-            video_name = os.path.splitext(os.path.basename(video_path))[0]
-            output_dir = os.path.join(args.output, video_name)
+        results = process_multiple_videos(
+            processor=processor,
+            video_paths=video_files,
+            output_base_dir=args.output,
+            frame_interval=args.interval,
+            dedup_mode=args.dedup_mode,
+            text_region=args.text_region,
+            lang=args.lang,
+            ocr_engine=args.ocr_engine,
+            use_scene_detection=args.scene_detection,
+            scene_threshold=args.scene_threshold,
+            min_scene_len=args.min_scene_len,
+            keyframes_per_scene=args.keyframes_per_scene
+        )
 
-            result = processor.process_video(
-                video_path=video_path,
-                output_dir=output_dir,
-                frame_interval=args.interval,
-                dedup_mode=args.dedup_mode,
-                text_region=args.text_region,
-                lang=args.lang,
-                ocr_engine=args.ocr_engine,
-                use_scene_detection=args.scene_detection,
-                scene_threshold=args.scene_threshold,
-                min_scene_len=args.min_scene_len,
-                keyframes_per_scene=args.keyframes_per_scene
-            )
+        successful = sum(1 for r in results if 'error' not in r)
+        print(f"Processing completed: {successful}/{len(results)} videos processed successfully")
 
-            print(f"Processing completed successfully!")
-            print(f"Frames processed: {result['frames_read']}")
-            print(f"Processing time: {result['processing_time']:.2f} seconds")
-
-        else:
-            # Multiple videos
-            results = process_multiple_videos(
-                video_paths=video_files,
-                output_base_dir=args.output,
-                frame_interval=args.interval,
-                dedup_mode=args.dedup_mode,
-                text_region=args.text_region,
-                lang=args.lang,
-                ocr_engine=args.ocr_engine,
-                use_scene_detection=args.scene_detection,
-                scene_threshold=args.scene_threshold,
-                min_scene_len=args.min_scene_len,
-                keyframes_per_scene=args.keyframes_per_scene
-            )
-
-            successful = sum(1 for r in results if 'error' not in r)
-            print(f"Processing completed: {successful}/{len(results)} videos processed successfully")
-
-            for result in results:
-                if 'error' in result:
-                    print(f"Error processing {result['video_path']}: {result['error']}")
+        for result in results:
+            if 'error' in result:
+                print(f"Error processing {result['video_path']}: {result['error']}")
+            else:
+                print(f"  - {result['video_name']}: {result['frames_read']} frames read, took {result['processing_time']:.2f}s")
 
     except Exception as e:
         print(f"Error: {e}")
