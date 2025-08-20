@@ -116,6 +116,42 @@ If you encounter Tesseract errors, ensure it's installed and update the path in 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 ```
 
+## Docker Usage
+
+This project can be run using Docker to simplify dependency management and ensure a consistent environment.
+
+### Building and Running the Container
+
+To build and run the Docker container, use the following command:
+
+```bash
+docker-compose up -d --build
+```
+
+This will start a PostgreSQL container, build the necessary image, and populate the database with the images found in the `./output` directory.
+
+### Verifying the Data
+
+You can connect to the PostgreSQL database to verify that the data has been populated correctly:
+
+```bash
+docker-compose exec -T postgres psql -U myuser -d mydatabase -c "SELECT * FROM video_frames LIMIT 10;"
+```
+
+### Repopulating the Database
+
+If you change the images in the `./output` directory and want to repopulate the database, you need to remove the existing data volume. This can be done with the following command:
+
+```bash
+docker-compose down -v
+```
+
+After running this command, you can then restart the container to populate the database with the new images:
+
+```bash
+docker-compose up -d --build
+```
+
 ### Memory Issues
 For large videos, reduce batch size and number of workers:
 ```bash
